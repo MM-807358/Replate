@@ -1,5 +1,7 @@
 
 # Replate
+![App Icon](images/leaf.svg)
+
 
 [Replate](https://mm-807358.github.io/Replate/) is our submission to the CB Hacks hackathon. Our website is about giving businesses an easy way to report a surplus of food, to allow food banks to help provide for people in need more easily.
 
@@ -13,3 +15,5 @@ With Replate, we allow businesses to easily connect with food banks. As a busine
 
 # Demo
 To use Replate, click [here](https://mm-807358.github.io/Replate/).
+![App Screenshot](images/image1.png)
+![App Screenshot](images/image2.png)
