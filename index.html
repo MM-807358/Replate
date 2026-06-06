@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Replate — Connecting Surplus to Need</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <!-- Fire base -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+  <!-- Style sheets -->
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/map.css" />
+  <link rel="stylesheet" href="css/sidebar.css" />
+  <link rel="stylesheet" href="css/modals.css" />
+  <link rel="stylesheet" href="css/toast.css" />
+  <link rel="stylesheet" href="css/search.css" />
+</head>
+<body>
+
+  <!-- location permission-->
+  <div id="location-overlay" class="overlay">
+    <div class="overlay-card">
+      <div class="overlay-icon">
+        <span class="icon-ring"></span>
+        <i data-lucide="leaf"></i>
+      </div>
+      <h1>Replate</h1>
+      <p class="overlay-tagline">Turning surplus into sustenance.</p>
+      <p class="overlay-desc">We connect local businesses that have extra food with the food banks and people who need it most. Share your location to find what's nearby.</p>
+      <button id="allow-location-btn" class="btn btn-primary">
+        <i data-lucide="crosshair"></i>
+        Use My Location
+      </button>
+      <button id="skip-location-btn" class="btn btn-ghost">Browse Greater Toronto Area</button>
+    </div>
+  </div>
+
+  <!-- Loading overlay -->
+  <div id="banks-loading-overlay" class="overlay hidden">
+    <div class="overlay-card">
+      <div class="loading-spinner" style="width:44px;height:44px;border-width:3px;margin:0 auto 28px;display:block"></div>
+      <h2 id="banks-loading-title">Loading food banks…</h2>
+      <p id="banks-loading-desc" class="overlay-desc">Finding food banks and resources across the Greater Toronto Area.</p>
+      <button id="banks-loading-skip-btn" class="btn btn-ghost">Skip — some things may take a moment to appear</button>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div id="app" class="hidden">
+
+    <!-- toppbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-brand">
+          <i data-lucide="leaf"></i>
+          <span>Replate</span>
+        </div>
+        <div id="search-wrap" class="search-wrap">
+          <div class="search-input-row">
+            <svg class="search-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input id="search-input" type="text" placeholder="Search businesses or address…" autocomplete="off" spellcheck="false" />
+            <button id="search-clear" class="search-clear hidden" type="button" aria-label="Clear">&#x2715;</button>
+          </div>
+          <div id="search-results" class="search-results hidden"></div>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <div id="loading-indicator" class="loading-indicator hidden">
+          <div class="loading-spinner"></div>
+          <span id="loading-text">Loading…</span>
+        </div>
+        <button id="locate-me-btn" class="btn btn-icon" title="Center on my location">
+          <i data-lucide="crosshair"></i>
+        </button>
+        <button id="report-surplus-btn" class="btn btn-accent">
+          <i data-lucide="plus-circle"></i>
+          Report Surplus
+        </button>
+      </div>
+    </header>
+
+
+    <div class="map-legend">
+      <div class="legend-item">
+        <span class="legend-dot foodbank"></span>
+        Food Bank
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot surplus"></span>
+        Surplus Food
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot business"></span>
+        Business
+      </div>
+    </div>
+
+    <div id="zoom-hint" class="zoom-hint hidden">
+      <i data-lucide="zoom-in"></i>
+      Zoom in to see local businesses
+    </div>
+
+
+    <div id="map"></div>
+
+
+    <aside id="sidebar" class="sidebar collapsed">
+      <div class="sidebar-handle" id="sidebar-handle">
+        <div class="handle-bar"></div>
+      </div>
+      <div class="sidebar-content">
+        <div class="sidebar-header">
+          <h2 id="sidebar-title">Nearby</h2>
+          <button id="sidebar-close" class="btn btn-icon">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div id="sidebar-body"></div>
+      </div>
+    </aside>
+
+    <div class="filter-bar">
+      <button class="filter-chip active" data-filter="all">All</button>
+      <button class="filter-chip" data-filter="foodbank">Food Banks</button>
+      <button class="filter-chip" data-filter="surplus">Surplus</button>
+      <button class="filter-chip" data-filter="business">Businesses</button>
+    </div>
+
+  </div>
+
+
+  <div id="report-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h2><i data-lucide="package-plus"></i> Report Surplus Food</h2>
+        <button class="modal-close btn btn-icon" data-modal="report-modal">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="report-form" class="modal-body">
+
+
+        <div class="form-group">
+          <label>Business *</label>
+          <div id="business-picker" class="business-picker">
+            <div class="business-picker-selected" id="business-picker-display">
+              <i data-lucide="store"></i>
+              <span id="business-picker-label">Select a business from the map or search below</span>
+              <button type="button" id="business-picker-clear" class="picker-clear hidden">
+                <i data-lucide="x"></i>
+              </button>
+            </div>
+            <div class="business-search-wrap">
+              <i data-lucide="search"></i>
+              <input type="text" id="business-search" placeholder="Search visible businesses…" autocomplete="off" />
+            </div>
+            <div id="business-search-results" class="business-search-results hidden"></div>
+          </div>
+          <input type="hidden" id="report-business-id" />
+          <input type="hidden" id="business-name" />
+          <input type="hidden" id="report-lat" />
+          <input type="hidden" id="report-lng" />
+          <input type="hidden" id="report-address" />
+          <p class="field-hint">
+            <i data-lucide="info"></i>
+            You can also click any business marker on the main map to pre-fill this field.
+          </p>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="food-type">Food Type *</label>
+            <select id="food-type" required>
+              <option value="">Select type…</option>
+              <option>Produce</option>
+              <option>Bakery / Bread</option>
+              <option>Prepared Meals</option>
+              <option>Dairy</option>
+              <option>Canned / Dry Goods</option>
+              <option>Meat / Protein</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="quantity">Quantity *</label>
+            <select id="quantity" required>
+              <option value="">Amount…</option>
+              <option>Small (&lt;10 items)</option>
+              <option>Medium (10–50 items)</option>
+              <option>Large (50+ items)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="food-desc">Description</label>
+          <textarea id="food-desc" rows="3" placeholder="Describe what's available, any dietary info, best-before, etc."></textarea>
+        </div>
+        <div class="form-group">
+          <label for="expiry">Available Until *</label>
+          <input type="datetime-local" id="expiry" required />
+        </div>
+        <div class="form-group">
+          <label for="contact">Contact / Pickup Instructions *</label>
+          <input type="text" id="contact" placeholder="Phone number or pickup details" required />
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost modal-close" data-modal="report-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="submit-report-btn">
+            <i data-lucide="send"></i> Submit Report
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <div id="detail-modal" class="modal-backdrop hidden">
+    <div class="modal modal-detail">
+      <div class="modal-header">
+        <h2 id="detail-title">Details</h2>
+        <button class="modal-close btn btn-icon" data-modal="detail-modal">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div id="detail-body" class="modal-body"></div>
+    </div>
+  </div>
+
+
+  <div id="toast-container"></div>
+
+  <!-- scriptss -->
+  <script src="js/config.js"></script>
+  <script src="js/firebase.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/toast.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script src="js/modals.js"></script>
+  <script src="js/filters.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
