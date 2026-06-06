@@ -1,0 +1,168 @@
+#map {
+  position: fixed;
+  inset: 58px 0 0 0;
+  z-index: var(--z-map);
+  background: #0d1117;
+}
+
+/* dark tint overlay*/
+#map::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+  mix-blend-mode: multiply;
+}
+
+/* popup overides */
+.leaflet-popup-content-wrapper {
+  background: var(--clr-surface) !important;
+  color: var(--clr-text) !important;
+  border: 1px solid var(--clr-border2) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-lg) !important;
+  padding: 0 !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  padding: 14px 16px !important;
+  font-family: var(--font-body) !important;
+  font-size: 13px !important;
+  min-width: 180px;
+}
+
+.leaflet-popup-tip {
+  background: var(--clr-surface) !important;
+}
+
+.leaflet-popup-close-button {
+  color: var(--clr-text-muted) !important;
+  font-size: 18px !important;
+  top: 6px !important;
+  right: 8px !important;
+}
+
+.popup-name {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--clr-text);
+  margin-bottom: 4px;
+}
+
+.popup-type {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 8px;
+}
+.popup-type.foodbank { color: var(--clr-green); }
+.popup-type.surplus  { color: var(--clr-amber); }
+.popup-type.business { color: var(--clr-blue);  }
+
+.popup-detail {
+  color: var(--clr-text-muted);
+  font-size: 12px;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.popup-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  background: var(--clr-surface2);
+  border: 1px solid var(--clr-border2);
+  border-radius: var(--radius-sm);
+  color: var(--clr-text);
+  font-family: var(--font-body);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  width: 100%;
+  justify-content: center;
+  font-weight: 500;
+}
+.popup-btn:hover { background: var(--clr-green-glow); color: var(--clr-green); border-color: var(--clr-green-dim); }
+
+/* markers */
+.custom-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.15);
+  box-shadow: var(--shadow-md);
+  transition: transform 0.15s;
+  cursor: pointer;
+}
+.custom-marker:hover { transform: scale(1.15); }
+
+.marker-foodbank {
+  background: radial-gradient(circle, #16a34a, #14532d);
+  box-shadow: 0 2px 12px rgba(74,222,128,0.5), var(--shadow-md);
+  border-color: var(--clr-green);
+}
+.marker-surplus {
+  background: radial-gradient(circle, #d97706, #78350f);
+  box-shadow: 0 2px 12px rgba(251,191,36,0.4), var(--shadow-md);
+  border-color: var(--clr-amber);
+}
+.marker-business {
+  background: radial-gradient(circle, #1d4ed8, #1e3a5f);
+  box-shadow: 0 2px 10px rgba(96,165,250,0.3), var(--shadow-md);
+  border-color: var(--clr-blue);
+}
+
+.marker-foodbank svg,
+.marker-surplus svg,
+.marker-business svg {
+  color: #fff;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+}
+
+/* user marker */
+.user-location-marker {
+  width: 20px; height: 20px;
+  background: #3b82f6;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 6px rgba(59,130,246,0.25), var(--shadow-md);
+  animation: locPulse 2s ease-in-out infinite;
+}
+@keyframes locPulse {
+  0%, 100% { box-shadow: 0 0 0 6px rgba(59,130,246,0.25), var(--shadow-md); }
+  50%       { box-shadow: 0 0 0 12px rgba(59,130,246,0.1), var(--shadow-md); }
+}
+
+.leaflet-control-attribution {
+  background: rgba(13,17,23,0.7) !important;
+  color: var(--clr-text-dim) !important;
+  backdrop-filter: blur(6px);
+}
+.leaflet-control-attribution a { color: var(--clr-text-muted) !important; }
+
+/* zoom ctrls */
+.leaflet-control-zoom a {
+  background: var(--clr-surface) !important;
+  color: var(--clr-text) !important;
+  border-color: var(--clr-border2) !important;
+}
+.leaflet-control-zoom a:hover {
+  background: var(--clr-surface2) !important;
+}
+
+/* mini report map*/
+.map-mini {
+  width: 100%;
+  height: 220px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--clr-border2);
+  cursor: crosshair;
+  margin-bottom: 8px;
+}
