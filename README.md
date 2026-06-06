@@ -1,6 +1,6 @@
 
 # Replate
-![App Icon](images/leaf.svg)
+<img src="images/leaf.svg" alt="Project Logo" width="200" height="200">
 
 
 [Replate](https://mm-807358.github.io/Replate/) is our submission to the CB Hacks hackathon. Our website is about giving businesses an easy way to report a surplus of food, to allow food banks to help provide for people in need more easily.
